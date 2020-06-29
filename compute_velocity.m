@@ -16,12 +16,12 @@ global e r_r r_l
 lambda_v = 0.5;
 lambda_omega = 0.5;
 d = 0.1;
-omega_max = 10.;  % maximum wheel speed
+omega_max = 10;  % maximum wheel speed
 
 % Compute position of waypoint in robot frame
 % orientation of robot frame w.r.t global frame
 R = [cos(X(3)),     -sin(X(3));
-     sin(X(3)),     cos(X(3))];  
+     sin(X(3)),     cos(X(3))];  % Rot Z
 r_wp = [R', -R' * X(1:2)] * [waypoint; 1];
 
 % Compute (v*, omega*) (ideal twist)

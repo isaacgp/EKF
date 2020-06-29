@@ -14,16 +14,21 @@ X_init = X_start;
 P_init = diag([0.2, 0.2, 0.1]);
 
 % Covariance of wheel speed
-sigma_tunning = 0.35;
-Q_wheel = diag([sigma_tunning^2, sigma_tunning^2]);
+% sigma_tunning = 0.35;
+sigma_tunning = 0.45;
+Q_wheel = diag([sigma_tunning^2, sigma_tunning^2]); %Q_Wheel is how sure you are about your speed input
 
 % Covariance of sensor noise
-sigma_alpha = 0.75;
-sigma_r = 0.75;
+% sigma_alpha = 0.75;
+% sigma_r = 0.75;
+sigma_alpha = 3.5;
+sigma_r = 3.5;
 Q_gamma = diag([sigma_alpha^2, sigma_r^2]);
 
+% Q_gamma = sigma_r^2;
+
 % Mahalanobis distance threshold
-d_Maha_threshold = 0.575;
+d_Maha_threshold = 2.7055;
 
 end
 

@@ -1,4 +1,4 @@
-function plot_state(mu, sigma, X, waypoints, x_true, y_true, x_odom, y_odom, theta_odom, x_ekf, y_ekf)
+function plot_state(mu, sigma, X, waypoints, x_true, y_true, x_odom, y_odom, theta_odom, x_ekf, y_ekf, Z)
     % Visualizes the state of the EKF SLAM algorithm.
     %
     % The resulting plot displays the following information:
@@ -37,6 +37,12 @@ function plot_state(mu, sigma, X, waypoints, x_true, y_true, x_odom, y_odom, the
     true_traj = plot(x_true, y_true, 'b-');
     odom_traj = plot(x_odom, y_odom, 'g-');
     ekf_traj = plot(x_ekf, y_ekf, 'r-');
+    
+    s_1_h = plot(x_ekf, y_ekf, 'r-');
+    s_1_v = 
+    s_2_h = 
+    s_2_v =
+    
     legend([true_traj, odom_traj, ekf_traj], ["True", "Odom", "EKF"])
     xlabel('Distance along X in the room (meters)')
     ylabel('Distance along Y in the room (meters)') 

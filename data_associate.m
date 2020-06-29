@@ -1,4 +1,4 @@
-function [V, PV, C_tensor] = data_associate(X_bar, P_bar, Z_t, Q_gamma, dMaha_threshold)
+function [V, PV, C_tensor, maha_dis, re_maha_dis] = data_associate(X_bar, P_bar, Z_t, Q_gamma, dMaha_threshold)
 %Associate the measurement obtained by the sensor and landmarks (lines) in
 %the map by thresholding the Mahalanobis distance of the innovation vector.
 % Input:
@@ -25,6 +25,9 @@ C_tensor = [];
 
 % Iterate through all the measurement and try to associate each of them 
 % with an edge
+maha_dis = []; %Smaller than the threshold
+re_maha_dis = []; %Bigger than the Threshold
+
 for i = 1 : size(Z_t, 2)
     % Extract true measurement
     z = Z_t(:, i);
@@ -36,18 +39,22 @@ for i = 1 : size(Z_t, 2)
         [v_r, P_v_r, C_r, d_maha_r] = cal_innovation(tile_x + 1, z, X_bar, P_bar, Q_gamma);
         if min([d_maha_l, d_maha_r]) < dMaha_threshold^2
             if d_maha_l < d_maha_r
+                maha_dis = [maha_dis;d_maha_l, z(5)];
                 % inner edge is detected
                 V = [V, v_l]; 
                 num_v = num_v + 1;
                 PV(:, :, num_v) = P_v_l;
                 C_tensor(:, :, num_v) = C_l;
             else
+                maha_dis = [maha_dis;d_maha_r, z(5)];
                 % outter edge is detected
                 V = [V, v_r];
                 num_v = num_v + 1;
                 PV(:,:, num_v) = P_v_r;
                 C_tensor(:, :, num_v) = C_r;
             end
+        else
+            re_maha_dis = [re_maha_dis; min([d_maha_l, d_maha_r]), z(5) ];
         end
 %     elseif not(isempty(z)) && z(3) == 1 
      elseif z(3) == 1 
@@ -56,19 +63,24 @@ for i = 1 : size(Z_t, 2)
         [v_u, P_v_u, C_u, d_maha_u] = cal_innovation(tile_y + 1, z, X_bar, P_bar, Q_gamma);
         if min([d_maha_d, d_maha_u]) < dMaha_threshold^2
             if d_maha_d < d_maha_u
+                maha_dis = [maha_dis;d_maha_d, z(5)];
                 % lower edge is detected
                 V = [V, v_d]; 
                 num_v = num_v + 1;
                 PV(:, :, num_v) = P_v_d;
                 C_tensor(:, :, num_v) = C_d;
             else
+                maha_dis = [maha_dis;d_maha_u, z(5)];
                 % upper edge is detected
                 V = [V, v_u];
                 num_v = num_v + 1;
                 PV(:,:, num_v) = P_v_u;
                 C_tensor(:, :, num_v) = C_u;
             end
+        else
+            re_maha_dis = [re_maha_dis; min([d_maha_d, d_maha_u]), z(5) ];
         end
+        
     end
 end
 

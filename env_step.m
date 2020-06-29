@@ -27,13 +27,17 @@ function [X_start_t, Z_t, sensor_state, u_mea] = env_step(X_start_tm1, twist, se
 
 %% Constance
 global tile_size num_edges edge_thick delta_t
-% env_wheel_sigma = 0.01;  % true std deviation of zero-mean Gaussian noise added to wheel speed
+env_wheel_sigma = 0.25;  % 0.025 true std deviation of zero-mean Gaussian noise added to wheel speed
 % env_sensor_sigma = 0.0025;  % true std deviation of zero-mean Gaussian noise added to sensor position
-% env_X_sigma = -5.999; % true std deviation of zero-mean Gaussian noise added to robot pose
+% env_X_sigma_x = 0.055; % true std deviation of zero-mean Gaussian noise added to robot pose
+% env_X_sigma_y = 0;
+env_X_sigma_theta = 0.025;
 
-env_wheel_sigma = 0;  % true std deviation of zero-mean Gaussian noise added to wheel speed
+% env_wheel_sigma = 0;  % true std deviation of zero-mean Gaussian noise added to wheel speed
 env_sensor_sigma = 0;  % true std deviation of zero-mean Gaussian noise added to sensor position
-env_X_sigma = 0; % true std deviation of zero-mean Gaussian noise added to robot pose
+env_X_sigma_x = 0; % true std deviation of zero-mean Gaussian noise added to robot pose
+env_X_sigma_y = 0;
+% env_X_sigma_theta = 0; 
 
 
 %% Calculate current true pose
@@ -51,7 +55,7 @@ X_start_t = X_start_tm1 + [u_t(1) * cos(X_start_tm1(3));
                            u_t(1) * sin(X_start_tm1(3));
                            u_t(2)];
 % Perturb X_start_t
-X_start_t = X_start_t + normrnd([0, 0, 0]', [env_X_sigma, env_X_sigma, env_X_sigma]');
+X_start_t = X_start_t + normrnd([0, 0, 0]', [env_X_sigma_x, env_X_sigma_y, env_X_sigma_theta]');
                        
 %% Simulate encoder
 encoder_counts = floor(delta_t * q_dot / (2 * pi / encoder_res));
@@ -73,11 +77,11 @@ for s = 1 : size(sensor_pos, 2)
                                                             sin(gamma)];
     % Perturb sensor position (to simulate sensor's uncertainty)
     s_pos = s_pos + normrnd(0, env_sensor_sigma, [2, 1]);
-    % Check if robot is close enough to either left of right edge of the tile to detect it
+    % Check if robot is close enough to either left or right edge of the tile to detect it
     if abs(tile_x * tile_size - s_pos(1)) <= edge_thick || abs((tile_x + 1) * tile_size - s_pos(1)) <= edge_thick
         % calculate measurement for a vertical line
         z = [-X_start_t(3);
-             abs(rho * cos(X_start_t(3) + gamma));
+             abs(rho * cos(X_start_t(3) + gamma));  % just to simulate the output of the sensor
              0; % 0 for vertical
              s; % sensor number
              t]; %timestep
@@ -86,7 +90,7 @@ for s = 1 : size(sensor_pos, 2)
         % update sensor state
         sensor_state(s) = 1;
     end
-    % Check if robot is close enough to either lower of upper edge of the tile to detect it
+    % Check if robot is close enough to either lower or upper edge of the tile to detect it
     if abs(tile_y * tile_size - s_pos(2)) <= edge_thick || abs((tile_y + 1) * tile_size - s_pos(2)) <= edge_thick
         % calculate measurement for a horizontal line
         z = [pi/2 - X_start_t(3);

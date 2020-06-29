@@ -18,7 +18,7 @@ function [e, r_r, r_l, sensor_pos, encoder_res] = robot_def()
     
     for i = 1 : n_s
         s = [rho(i);
-             lambda(i)];
+             lambda(i)];  % polar coordinate of a sensor in robot local frame
         sensor_pos = [sensor_pos, s];
     end
     

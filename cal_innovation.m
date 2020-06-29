@@ -20,14 +20,14 @@ global tile_size
 if z(3) == 0
     % detect vertical line
     z_hat = [-X_bar(3);
-             abs(edge_idx * tile_size - X_bar(1))];
+             abs(edge_idx * tile_size - X_bar(1))];  % measurement model
     % Jacobian of measurement model
     if edge_idx * tile_size > X_bar(1)
         C = [0,     0,      -1;
-             -1,    0,      0];
+             -1,    0,      0]; %right line
     else
         C = [0,     0,      -1;
-             1,     0,      0];
+             1,     0,      0]; %left line
     end
 else
     % detect a horizontal line
@@ -35,10 +35,10 @@ else
              abs(edge_idx * tile_size - X_bar(2))];
     % Jacobian of measurement model
     if edge_idx * tile_size > X_bar(2)
-        C = [0,     0,      -1;
+        C = [0,     0,      -1; % upper line
              0,     -1,     0];
     else
-        C = [0,     0,      -1;
+        C = [0,     0,      -1; %lower line
              0,     1,      0];
     end
 end
@@ -50,7 +50,7 @@ v = z(1:2) - z_hat;
 P_v = Q_gamma + C * P_bar * C';
 
 % Mahalanobis distance
-d_maha = v' * P_v * v;
+% d_maha =  v' * inv(P_v) * v;
+d_maha = sqrt( v' * inv(P_v) * v);
      
 end
-

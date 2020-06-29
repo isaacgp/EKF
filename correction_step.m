@@ -13,21 +13,17 @@ function [X_t, P_t] = correction_step(X_bar, P_bar, V, PV, C_tensor)
 X_t = X_bar;
 P_t = P_bar;
 
-if V  % there are measurements associated with environment edges
-    for i = 1 : size(V, 2)
-        % extract innovation vector, its covariance & Jacobian of measurement model
-        v = V(:, i); 
-        P_v = PV(:, :, i);
-        C = C_tensor(:, :, i);
-        % Kalman gain
-        K = P_t * C' / P_v;
-        % Correction
-        X_t = X_t + K * v;
-        P_t = (eye(3) - K * C) * P_t;
+    if V  % there are measurements associated with environment edges
+        for i = 1 : size(V, 2)
+            % extract innovation vector, its covariance & Jacobian of measurement model
+            v = V(:, i);  % innovation vector
+            P_v = PV(:, :, i);  % covariance of the innovation
+            C = C_tensor(:, :, i); % jacobian of  the measurement model
+            % Kalman gain
+            K = P_t * C' / P_v;
+            % Correction
+            X_t = X_t + K * v;
+            P_t = (eye(3) - K * C) * P_t;
+        end
     end
-% else
-%     disp("No correction here!")
-end
-
-
 end
